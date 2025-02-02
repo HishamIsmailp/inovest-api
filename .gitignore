@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+
+# Environment files
+.env
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+*.d.ts
+
+# Build output
+/dist
+/build
+
+# Prisma
+/prisma/client/
+
+# Ignore coverage directory
+/coverage/
+
+# VSCode
+.vscode/
+
+# JetBrains
+.idea/
