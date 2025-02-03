@@ -7,6 +7,7 @@ import { appConfig } from "./config/app.config";
 import { initializeSocket } from "./config/socket";
 import { errorHandler } from "./middlewares";
 import { routes } from "./routes";
+import { welcomePage } from "./constants";
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,6 +18,10 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.get("/", (_, res) => {
+  res.send(welcomePage);
+});
 
 app.use("/api", routes);
 

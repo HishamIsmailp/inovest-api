@@ -8,9 +8,6 @@ import { welcomePage } from "../constants";
 
 const router = Router();
 
-router.get("/", (_, res) => {
-  res.send(welcomePage);
-});
 
 router.use("/auth", authRoutes);
 router.use("/entrepreneur", entrepreneurRoutes);
