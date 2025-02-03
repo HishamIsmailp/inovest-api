@@ -4,7 +4,7 @@ export const welcomePage = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Platform API</title>
+    <title>Inovest API</title>
     <style>
         * {
             margin: 0;
@@ -157,7 +157,7 @@ export const welcomePage = `
 </head>
 <body>
     <div class="container">
-        <h1>Investment Platform API</h1>
+        <h1>Inovest API</h1>
         <div style="text-align: center;">
             <span class="status">API is Online</span>
         </div>
@@ -342,7 +342,7 @@ export const welcomePage = `
         </div>
     </div>
     <footer>
-        <p>© 2024 Investment Platform API Documentation</p>
+        <p>© 2024 Inovest API Documentation</p>
     </footer>
 </body>
 </html>
