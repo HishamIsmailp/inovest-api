@@ -1,26 +1,14 @@
 import { Request } from "express";
 import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
 import { prisma } from "../config";
+import { commonService } from "../services/commonService";
 
 export const commonController = {
   updateProfile: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const userId = req.user!.id;
-    const { name, imageUrl } = req.body;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        name,
-        imageUrl,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        imageUrl: true,
-        role: true,
-      },
-    });
+    const updatedUser = await commonService.updateProfile(
+      req.user!.id,
+      req.body
+    );
 
     return {
       status: StatusCodes.OK,
@@ -30,17 +18,7 @@ export const commonController = {
   }),
 
   getProfile: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const userId = req.user!.id;
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        role: true,
-      },
-    });
-
-    if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
-    }
+    const user = await commonService.getProfile(req.user!.id);
 
     return {
       status: StatusCodes.OK,
@@ -49,13 +27,7 @@ export const commonController = {
   }),
 
   updateRole: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const userId = req.user!.id;
-    const { role } = req.body;
-
-    const updatedRole = await prisma.userRole.update({
-      where: { userId },
-      data: { currentRole: role },
-    });
+    const updatedRole = await commonService.updateRole(req.user!.id, req.body);
 
     return {
       status: StatusCodes.OK,
@@ -65,40 +37,10 @@ export const commonController = {
   }),
 
   getChatMessages: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const userId = req.user!.id;
-
-    const participant = await prisma.chatParticipant.findUnique({
-      where: {
-        chatId_userId: {
-          chatId: id,
-          userId,
-        },
-      },
-    });
-
-    if (!participant) {
-      throw new ApiError(
-        StatusCodes.FORBIDDEN,
-        "Not authorized to access this chat"
-      );
-    }
-
-    const messages = await prisma.message.findMany({
-      where: { chatId: id },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-    });
+    const messages = await commonService.getChatMessages(
+      req.params.id,
+      req.user!.id
+    );
 
     return {
       status: StatusCodes.OK,
@@ -107,45 +49,22 @@ export const commonController = {
   }),
 
   sendMessage: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const { content, messageType } = req.body;
-    const senderId = req.user!.id;
-
-    const message = await prisma.message.create({
-      data: {
-        chatId: id,
-        senderId,
-        content,
-        messageType,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
-
-    req.app.get("socketService").sendMessage(id, message);
+    const message = await commonService.sendMessage(
+      req.params.id,
+      req.user!.id,
+      req.body.content,
+      req.body.messageType
+    );
 
     return {
-      status: StatusCodes.OK,
+      status: StatusCodes.CREATED,
       data: message,
       message: "Message sent successfully",
     };
   }),
 
   getNotifications: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const userId = req.user!.id;
-    const notifications = await prisma.notification.findMany({
-      where: { userId },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const notifications = await commonService.getNotifications(req.user!.id);
 
     return {
       status: StatusCodes.OK,
@@ -155,18 +74,10 @@ export const commonController = {
 
   markNotificationRead: asyncHandler(
     async (req: Request): Promise<ApiResponse> => {
-      const { id } = req.params;
-      const userId = req.user!.id;
-
-      const notification = await prisma.notification.update({
-        where: {
-          id,
-          userId,
-        },
-        data: {
-          read: true,
-        },
-      });
+      const notification = await commonService.markNotificationRead(
+        req.params.id,
+        req.user!.id
+      );
 
       return {
         status: StatusCodes.OK,

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const userValidation = {
   updateProfile: z.object({
@@ -7,6 +7,6 @@ export const userValidation = {
   }),
 
   updateRole: z.object({
-    role: z.enum(['INVESTOR', 'ENTREPRENEUR'])
-  })
+    role: z.enum(["INVESTOR", "ENTREPRENEUR"]),
+  }),
 };

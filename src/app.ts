@@ -3,53 +3,27 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { createServer } from "http";
-import { config } from "dotenv";
-import { initializeSocket } from "./config";
+import { appConfig } from "./config/app.config";
+import { initializeSocket } from "./config/socket";
 import { errorHandler } from "./middlewares";
-import {
-  authRoutes,
-  entrepreneurRoutes,
-  investorRoutes,
-  categoryRoutes,
-  commonRoutes,
-} from "./routes";
-import { welcomePage } from "./constants";
-
-config();
+import { routes } from "./routes";
 
 const app = express();
 const httpServer = createServer(app);
 const io = initializeSocket(httpServer);
 
-const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.use(cors(appConfig.corsOptions));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", authRoutes);
-app.use("/api/entrepreneur", entrepreneurRoutes);
-app.use("/api/investor", investorRoutes);
-app.use("/api/category", categoryRoutes);
-app.use("/api", commonRoutes);
+app.use("/api", routes);
 
 app.use(errorHandler);
 
-app.get("/", (req, res) => {
-  res.send(welcomePage);
-});
-
-const PORT = process.env.PORT || 5000;
-
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+httpServer.listen(appConfig.port, () => {
+  console.log(`Server running on port ${appConfig.port}`);
 });
 
 export default app;

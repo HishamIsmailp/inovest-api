@@ -1,2 +1,2 @@
-export {default as prisma} from './database'
-export * from './socket'
+export { default as prisma } from "./database";
+export * from "./socket";

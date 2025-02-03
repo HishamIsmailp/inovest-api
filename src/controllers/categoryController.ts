@@ -1,25 +1,10 @@
 import { Request } from "express";
-import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
-import { prisma } from "../config";
+import { asyncHandler, ApiResponse, StatusCodes } from "../utils";
+import { categoryService } from "../services/categoryService";
 
 export const categoryController = {
   createCategory: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { name, description } = req.body;
-
-    const existingCategory = await prisma.category.findUnique({
-      where: { name },
-    });
-
-    if (existingCategory) {
-      throw new ApiError(
-        StatusCodes.CONFLICT,
-        "Category with this name already exists"
-      );
-    }
-
-    const category = await prisma.category.create({
-      data: { name, description },
-    });
+    const category = await categoryService.createCategory(req.body);
 
     return {
       status: StatusCodes.CREATED,
@@ -30,17 +15,8 @@ export const categoryController = {
 
   getAllCategories: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const includeProjectCount = req.query.includeProjectCount === "true";
-
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: includeProjectCount
-          ? {
-              select: { projects: true },
-            }
-          : false,
-      },
-      orderBy: { name: "asc" },
-    });
+    const categories =
+      await categoryService.getAllCategories(includeProjectCount);
 
     return {
       status: StatusCodes.OK,
@@ -49,20 +25,7 @@ export const categoryController = {
   }),
 
   getCategoryById: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-
-    const category = await prisma.category.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { projects: true },
-        },
-      },
-    });
-
-    if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
-    }
+    const category = await categoryService.getCategoryById(req.params.id);
 
     return {
       status: StatusCodes.OK,
@@ -71,70 +34,20 @@ export const categoryController = {
   }),
 
   updateCategory: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const { name, description } = req.body;
-
-    const existingCategory = await prisma.category.findUnique({
-      where: { id },
-    });
-
-    if (!existingCategory) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
-    }
-
-    if (name && name !== existingCategory.name) {
-      const duplicateCategory = await prisma.category.findUnique({
-        where: { name },
-      });
-
-      if (duplicateCategory) {
-        throw new ApiError(
-          StatusCodes.CONFLICT,
-          "Category with this name already exists"
-        );
-      }
-    }
-
-    const updatedCategory = await prisma.category.update({
-      where: { id },
-      data: {
-        name: name || undefined,
-        description: description || undefined,
-      },
-    });
+    const category = await categoryService.updateCategory(
+      req.params.id,
+      req.body
+    );
 
     return {
       status: StatusCodes.OK,
-      data: updatedCategory,
+      data: category,
       message: "Category updated successfully",
     };
   }),
 
   deleteCategory: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-
-    const category = await prisma.category.findUnique({
-      where: { id },
-    });
-
-    if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
-    }
-
-    const projectCount = await prisma.project.count({
-      where: { categoryId: id },
-    });
-
-    if (projectCount > 0) {
-      throw new ApiError(
-        StatusCodes.CONFLICT,
-        "Cannot delete category with existing projects"
-      );
-    }
-
-    await prisma.category.delete({
-      where: { id },
-    });
+    await categoryService.deleteCategory(req.params.id);
 
     return {
       status: StatusCodes.OK,

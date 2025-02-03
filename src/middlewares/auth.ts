@@ -1,27 +1,38 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { StatusCodes } from "../utils";
+import { verifyToken } from "../utils/jwt";
+import { ApiError, StatusCodes } from "../utils";
+import prisma from "../config/database";
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "No token provided" });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      throw new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        "Invalid authorization header"
+      );
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    const token = authHeader.split(" ")[1];
+    const decoded = verifyToken(token, "access");
 
-    if (typeof decoded === "object" && decoded !== null) {
-      req.user = decoded as { id: string; role?: string };
-      next();
-    } else {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "Invalid token format" });
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.sub },
+      include: { role: true },
+    });
+
+    if (!user) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, "User not found");
     }
+
+    req.user = {
+      id: user.id,
+      role: user.role?.currentRole,
+    };
+
+    next();
   } catch (error) {
-    res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token" });
+    next(error);
   }
 };

@@ -1,0 +1,16 @@
+import { config } from "dotenv";
+
+config();
+
+export const appConfig = {
+  port: process.env.PORT || 5000,
+  nodeEnv: process.env.NODE_ENV || "development",
+  jwtSecret: process.env.JWT_SECRET!,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
+  clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
+  corsOptions: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  },
+};

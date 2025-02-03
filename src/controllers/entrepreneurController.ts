@@ -1,40 +1,14 @@
 import { Request } from "express";
 import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
 import { prisma } from "../config";
+import { entrepreneurService } from "../services/entrepreneurService";
 
 export const entrepreneurController = {
   createIdea: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { title, abstract, expectedInvestment, categoryId } = req.body;
-    const entrepreneurId = req.user!.id;
-
-    const category = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
-
-    if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
-    }
-
-    const project = await prisma.project.create({
-      data: {
-        title,
-        abstract,
-        expectedInvestment,
-        categoryId,
-        entrepreneurId,
-        status: "AVAILABLE",
-      },
-      include: {
-        category: true,
-        entrepreneur: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
+    const project = await entrepreneurService.createIdea(
+      req.user!.id,
+      req.body
+    );
 
     return {
       status: StatusCodes.CREATED,
@@ -44,40 +18,11 @@ export const entrepreneurController = {
   }),
 
   updateIdea: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const { title, abstract, expectedInvestment, categoryId } = req.body;
-    const entrepreneurId = req.user!.id;
-
-    const project = await prisma.project.findFirst({
-      where: {
-        id,
-        entrepreneurId,
-      },
-    });
-
-    if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
-    }
-
-    const updated = await prisma.project.update({
-      where: { id },
-      data: {
-        title,
-        abstract,
-        expectedInvestment,
-        categoryId,
-      },
-      include: {
-        category: true,
-        entrepreneur: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
+    const updated = await entrepreneurService.updateIdea(
+      req.user!.id,
+      req.params.id,
+      req.body
+    );
 
     return {
       status: StatusCodes.OK,
@@ -87,42 +32,7 @@ export const entrepreneurController = {
   }),
 
   deleteIdea: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const entrepreneurId = req.user!.id;
-
-    const project = await prisma.project.findFirst({
-      where: {
-        id,
-        entrepreneurId,
-      },
-    });
-
-    if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
-    }
-
-    await prisma.$transaction([
-      prisma.projectRating.deleteMany({ where: { projectId: id } }),
-      prisma.projectInterest.deleteMany({ where: { projectId: id } }),
-      prisma.projectImage.deleteMany({ where: { projectId: id } }),
-      prisma.payment.deleteMany({ where: { projectId: id } }),
-      prisma.message.deleteMany({
-        where: {
-          chat: {
-            projectId: id,
-          },
-        },
-      }),
-      prisma.chatParticipant.deleteMany({
-        where: {
-          chat: {
-            projectId: id,
-          },
-        },
-      }),
-      prisma.chat.deleteMany({ where: { projectId: id } }),
-      prisma.project.delete({ where: { id } }),
-    ]);
+    await entrepreneurService.deleteIdea(req.user!.id, req.params.id);
 
     return {
       status: StatusCodes.OK,
@@ -131,105 +41,20 @@ export const entrepreneurController = {
   }),
 
   listIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const entrepreneurId = req.user!.id;
-    const { status, search } = req.query;
-
-    const where: any = {
-      entrepreneurId,
-      ...(status ? { status } : {}),
-      ...(search
-        ? {
-            OR: [
-              { title: { contains: search as string, mode: "insensitive" } },
-              {
-                abstract: { contains: search as string, mode: "insensitive" },
-              },
-            ],
-          }
-        : {}),
-    };
-
-    const projects = await prisma.project.findMany({
-      where,
-      include: {
-        category: true,
-        _count: {
-          select: {
-            ratings: true,
-            interests: true,
-          },
-        },
-        ratings: {
-          select: {
-            rating: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    const projectsWithStats = projects.map((project) => ({
-      ...project,
-      averageRating: project.ratings.length
-        ? project.ratings.reduce((acc, curr) => acc + curr.rating, 0) /
-          project.ratings.length
-        : 0,
-      ratings: undefined,
-    }));
+    const ideas = await entrepreneurService.listIdeas(req.user!.id);
 
     return {
       status: StatusCodes.OK,
-      data: projectsWithStats,
+      data: ideas,
     };
   }),
 
   updateStatus: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const { id } = req.params;
-    const { status } = req.body;
-    const entrepreneurId = req.user!.id;
-
-    const project = await prisma.project.findFirst({
-      where: {
-        id,
-        entrepreneurId,
-      },
-      include: {
-        interests: {
-          include: {
-            investor: true,
-          },
-        },
-      },
-    });
-
-    if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
-    }
-
-    const updated = await prisma.project.update({
-      where: { id },
-      data: { status },
-      include: {
-        category: true,
-      },
-    });
-
-    await prisma.$transaction(
-      project.interests.map((interest) =>
-        prisma.notification.create({
-          data: {
-            userId: interest.investorId,
-            type: "STATUS_CHANGE",
-            title: "Project Status Updated",
-            message: `Project "${project.title}" status has been updated to ${status}`,
-          },
-        })
-      )
+    const updated = await entrepreneurService.updateStatus(
+      req.user!.id,
+      req.params.id,
+      req.body.status
     );
-
-    req.app.get("socketService").sendStatusChange(id, status);
 
     return {
       status: StatusCodes.OK,
@@ -239,16 +64,9 @@ export const entrepreneurController = {
   }),
 
   getNotifications: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const entrepreneurId = req.user!.id;
-
-    const notifications = await prisma.notification.findMany({
-      where: {
-        userId: entrepreneurId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const notifications = await entrepreneurService.getNotifications(
+      req.user!.id
+    );
 
     return {
       status: StatusCodes.OK,
@@ -257,51 +75,7 @@ export const entrepreneurController = {
   }),
 
   getChats: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const entrepreneurId = req.user!.id;
-
-    const chats = await prisma.chat.findMany({
-      where: {
-        participants: {
-          some: {
-            userId: entrepreneurId,
-          },
-        },
-      },
-      include: {
-        project: true,
-        participants: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-        messages: {
-          take: 1,
-          orderBy: {
-            createdAt: "desc",
-          },
-          include: {
-            sender: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        messages: {
-          _count: "desc",
-        },
-      },
-    });
+    const chats = await entrepreneurService.getChats(req.user!.id);
 
     return {
       status: StatusCodes.OK,
