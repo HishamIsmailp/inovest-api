@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import logger from "./logger";
+import { StatusCodes } from ".";
 
 export interface ApiResponse {
   status: number;
@@ -50,7 +51,7 @@ export const asyncHandler = (handler: AsyncRequestHandler) => {
         }
       }
 
-      res.status(500).json({
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: "Internal server error",
       });

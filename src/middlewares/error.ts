@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
+import { StatusCodes } from "../utils";
 
 export const errorHandler = (
   err: Error,
@@ -7,5 +8,7 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  res
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
+    .json({ message: "Something went wrong!" });
 };

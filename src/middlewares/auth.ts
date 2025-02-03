@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { StatusCodes } from "../utils";
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "No token provided" });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
@@ -14,9 +17,11 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
       req.user = decoded as { id: string; role?: string };
       next();
     } else {
-      return res.status(401).json({ message: "Invalid token format" });
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Invalid token format" });
     }
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(StatusCodes.UNAUTHORIZED).json({ message: "Invalid token" });
   }
 };
