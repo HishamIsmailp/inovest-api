@@ -9,7 +9,8 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy"
+    "prisma:migrate": "prisma migrate deploy",
+    "vercel-build": "echo hello"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma"
