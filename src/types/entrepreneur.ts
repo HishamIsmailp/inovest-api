@@ -11,7 +11,3 @@ export interface UpdateIdeaDto {
   expectedInvestment?: number;
   categoryId?: string;
 }
-
-export interface UpdateStatusDto {
-  status: "AVAILABLE" | "UNDER_DISCUSSION" | "BOOKED" | "INVESTED";
-}

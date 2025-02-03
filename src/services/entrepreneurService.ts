@@ -2,8 +2,7 @@ import { prisma } from "../config";
 import { ApiError, StatusCodes } from "../utils";
 import {
   CreateIdeaDto,
-  UpdateIdeaDto,
-  UpdateStatusDto,
+  UpdateIdeaDto
 } from "../types/entrepreneur";
 import { ProjectStatus, Prisma } from "@prisma/client";
 

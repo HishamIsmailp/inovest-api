@@ -13,7 +13,3 @@ export interface SendMessageDto {
   content: string;
   messageType: MessageType;
 }
-
-export interface UpdateStatusDto {
-  status: ProjectStatus;
-}
