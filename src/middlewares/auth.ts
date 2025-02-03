@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 import { ApiError, StatusCodes } from "../utils";
-import prisma from "../config/database";
+import { prisma } from "../config";
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { prisma } from "../config";
 import { ApiError, ApiResponse, asyncHandler, StatusCodes } from "../utils";
+import { NotificationService } from '../services/notificationService';
 
 export const investorController = {
   getCategories: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -163,23 +164,27 @@ export const investorController = {
             imageUrl: true,
           },
         },
+        project: {
+          include: {
+            entrepreneur: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    const project = await prisma.project.findUnique({
-      where: { id },
-      select: { entrepreneurId: true },
-    });
-
-    if (project) {
-      await prisma.notification.create({
-        data: {
-          userId: project.entrepreneurId,
-          type: "INTEREST",
-          title: "New Interest",
-          message: `An investor has shown interest in your project`,
-        },
-      });
+    if (interest.project?.entrepreneur) {
+      await NotificationService.sendNotification(
+        interest.project.entrepreneur.id,
+        "New Investment Interest",
+        `${interest.investor.name} has shown interest in your project`,
+        "INTEREST"
+      );
     }
 
     return {

@@ -41,5 +41,10 @@ router.post(
   validateRequest(paymentValidation.verify),
   commonController.verifyPayment
 );
+router.post(
+  "/fcm-token",
+  validateRequest(userValidation.updateFcmToken),
+  commonController.updateFcmToken
+);
 
 export default router;

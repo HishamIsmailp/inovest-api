@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Role } from "@prisma/client";
 import { ApiError, StatusCodes } from "../utils";
-import prisma from "../config/database";
+import { prisma } from "../config";
 
 export const checkRole = (requiredRole: Role) => {
   return async (req: Request, res: Response, next: NextFunction) => {

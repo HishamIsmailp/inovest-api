@@ -2,6 +2,7 @@ import { Request } from "express";
 import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
 import { prisma } from "../config";
 import { commonService } from "../services/commonService";
+import { NotificationService } from "../services/notificationService";
 
 export const commonController = {
   updateProfile: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -131,6 +132,17 @@ export const commonController = {
       status: StatusCodes.OK,
       data: payment,
       message: "Payment verified successfully",
+    };
+  }),
+
+  updateFcmToken: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    const { token } = req.body;
+    
+    await NotificationService.updateFcmToken(req.user!.id, token);
+
+    return {
+      status: StatusCodes.OK,
+      message: "FCM token updated successfully",
     };
   }),
 };

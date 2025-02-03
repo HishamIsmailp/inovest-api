@@ -2,6 +2,8 @@ import { prisma } from "../config";
 import { ApiError, StatusCodes } from "../utils";
 import { UpdateProfileDto, UpdateRoleDto } from "../types/common";
 import { MessageType } from "@prisma/client";
+import { SocketService } from './socketService';
+import { NotificationService } from './notificationService';
 
 export class CommonService {
   async updateProfile(userId: string, data: UpdateProfileDto) {
@@ -81,8 +83,13 @@ export class CommonService {
       where: {
         id: chatId,
         participants: {
-          some: {
-            userId,
+          some: { userId },
+        },
+      },
+      include: {
+        participants: {
+          include: {
+            user: true,
           },
         },
       },
@@ -92,7 +99,7 @@ export class CommonService {
       throw new ApiError(StatusCodes.NOT_FOUND, "Chat not found");
     }
 
-    return prisma.message.create({
+    const message = await prisma.message.create({
       data: {
         chatId,
         senderId: userId,
@@ -109,6 +116,23 @@ export class CommonService {
         },
       },
     });
+
+    const otherParticipants = chat.participants
+      .filter(p => p.userId !== userId)
+      .map(p => p.user);
+
+    for (const participant of otherParticipants) {
+      await NotificationService.sendNotification(
+        participant.id,
+        "New Message",
+        `${message.sender.name}: ${content}`,
+        "MESSAGE"
+      );
+    }
+
+    SocketService.emitNewMessage(chatId, message);
+
+    return message;
   }
 
   async getNotifications(userId: string) {

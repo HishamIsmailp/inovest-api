@@ -9,4 +9,8 @@ export const userValidation = {
   updateRole: z.object({
     role: z.enum(["INVESTOR", "ENTREPRENEUR"]),
   }),
+
+  updateFcmToken: z.object({
+    token: z.string().min(1),
+  }),
 };
