@@ -13,6 +13,7 @@ import {
   categoryRoutes,
   commonRoutes,
 } from "./routes";
+import { welcomePage } from "./constants";
 
 config();
 
@@ -41,8 +42,8 @@ app.use("/api", commonRoutes);
 
 app.use(errorHandler);
 
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
+app.get("/", (req, res) => {
+  res.send(welcomePage);
 });
 
 const PORT = process.env.PORT || 5000;
