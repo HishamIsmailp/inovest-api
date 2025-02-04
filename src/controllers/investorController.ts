@@ -1,18 +1,10 @@
 import { Request } from "express";
-import { prisma } from "../config";
-import { ApiError, ApiResponse, asyncHandler, StatusCodes } from "../utils";
-import { NotificationService } from '../services/notificationService';
+import { ApiResponse, asyncHandler, StatusCodes } from "../utils";
+import { investorService } from "../services/investorService";
 
 export const investorController = {
   getCategories: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { projects: true },
-        },
-      },
-    });
-
+    const categories = await investorService.getCategories();
     return {
       status: StatusCodes.OK,
       data: categories,
@@ -20,32 +12,7 @@ export const investorController = {
   }),
 
   getTopIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const topIdeas = await prisma.project.findMany({
-      where: { status: "AVAILABLE" },
-      include: {
-        category: true,
-        entrepreneur: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            ratings: true,
-            interests: true,
-          },
-        },
-      },
-      orderBy: {
-        ratings: {
-          _count: "desc",
-        },
-      },
-      take: 10,
-    });
-
+    const topIdeas = await investorService.getTopIdeas();
     return {
       status: StatusCodes.OK,
       data: topIdeas,
@@ -54,23 +21,7 @@ export const investorController = {
 
   getCategoryIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const { id } = req.params;
-    const ideas = await prisma.project.findMany({
-      where: {
-        categoryId: id,
-        status: "AVAILABLE",
-      },
-      include: {
-        category: true,
-        entrepreneur: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-      },
-    });
-
+    const ideas = await investorService.getCategoryIdeas(id);
     return {
       status: StatusCodes.OK,
       data: ideas,
@@ -79,36 +30,7 @@ export const investorController = {
 
   getIdeaDetail: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const { id } = req.params;
-    const idea = await prisma.project.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        entrepreneur: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-        ratings: {
-          include: {
-            investor: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-        images: true,
-      },
-    });
-
-    if (!idea) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Idea not found");
-    }
-
+    const idea = await investorService.getIdeaDetail(id);
     return {
       status: StatusCodes.OK,
       data: idea,
@@ -120,24 +42,12 @@ export const investorController = {
     const { rating, comment } = req.body;
     const investorId = req.user!.id;
 
-    const updatedRating = await prisma.projectRating.upsert({
-      where: {
-        projectId_investorId: {
-          projectId: id,
-          investorId,
-        },
-      },
-      update: {
-        rating,
-        comment,
-      },
-      create: {
-        projectId: id,
-        investorId,
-        rating,
-        comment,
-      },
-    });
+    const updatedRating = await investorService.rateIdea(
+      investorId,
+      id,
+      rating,
+      comment
+    );
 
     return {
       status: StatusCodes.OK,
@@ -150,42 +60,7 @@ export const investorController = {
     const { id } = req.params;
     const investorId = req.user!.id;
 
-    const interest = await prisma.projectInterest.create({
-      data: {
-        projectId: id,
-        investorId,
-        status: "INTERESTED",
-      },
-      include: {
-        investor: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true,
-          },
-        },
-        project: {
-          include: {
-            entrepreneur: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (interest.project?.entrepreneur) {
-      await NotificationService.sendNotification(
-        interest.project.entrepreneur.id,
-        "New Investment Interest",
-        `${interest.investor.name} has shown interest in your project`,
-        "INTEREST"
-      );
-    }
+    const interest = await investorService.showInterest(investorId, id);
 
     return {
       status: StatusCodes.CREATED,
@@ -196,24 +71,7 @@ export const investorController = {
 
   getInterests: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const investorId = req.user!.id;
-    const interests = await prisma.projectInterest.findMany({
-      where: { investorId },
-      include: {
-        project: {
-          include: {
-            category: true,
-            entrepreneur: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
+    const interests = await investorService.getInterests(investorId);
     return {
       status: StatusCodes.OK,
       data: interests,
@@ -222,36 +80,7 @@ export const investorController = {
 
   getChats: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const userId = req.user!.id;
-    const chats = await prisma.chat.findMany({
-      where: {
-        participants: {
-          some: {
-            userId,
-          },
-        },
-      },
-      include: {
-        project: true,
-        participants: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-        messages: {
-          take: 1,
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
-      },
-    });
-
+    const chats = await investorService.getChats(userId);
     return {
       status: StatusCodes.OK,
       data: chats,

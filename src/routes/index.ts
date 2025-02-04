@@ -4,10 +4,8 @@ import entrepreneurRoutes from "./entrepreneur";
 import investorRoutes from "./investor";
 import commonRoutes from "./common";
 import categoryRoutes from "./category";
-import { welcomePage } from "../constants";
 
 const router = Router();
-
 
 router.use("/auth", authRoutes);
 router.use("/entrepreneur", entrepreneurRoutes);
