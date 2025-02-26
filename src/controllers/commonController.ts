@@ -145,4 +145,13 @@ export const commonController = {
       message: "FCM token updated successfully",
     };
   }),
+
+  getChats: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    const chats = await commonService.getChats(req.user!.id);
+
+    return {
+      status: StatusCodes.OK,
+      data: chats,
+    };
+  })
 };

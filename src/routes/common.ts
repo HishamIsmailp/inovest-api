@@ -46,5 +46,6 @@ router.post(
   validateRequest(userValidation.updateFcmToken),
   commonController.updateFcmToken
 );
+router.get("/chats", commonController.getChats);
 
 export default router;

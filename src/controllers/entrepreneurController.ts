@@ -74,15 +74,6 @@ export const entrepreneurController = {
     };
   }),
 
-  getChats: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const chats = await entrepreneurService.getChats(req.user!.id);
-
-    return {
-      status: StatusCodes.OK,
-      data: chats,
-    };
-  }),
-
   getDashboardStats: asyncHandler(
     async (req: Request): Promise<ApiResponse> => {
       const entrepreneurId = req.user!.id;

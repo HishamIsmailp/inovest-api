@@ -28,6 +28,5 @@ router.put(
   entrepreneurController.updateStatus
 );
 router.get("/notifications", entrepreneurController.getNotifications);
-router.get("/chats", entrepreneurController.getChats);
 
 export default router;
