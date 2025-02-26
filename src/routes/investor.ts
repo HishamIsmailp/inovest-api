@@ -21,6 +21,5 @@ router.post(
 );
 router.post("/ideas/:id/interest", investorController.showInterest);
 router.get("/interests", investorController.getInterests);
-router.get("/chats", investorController.getChats);
 
 export default router;

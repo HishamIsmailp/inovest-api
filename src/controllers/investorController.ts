@@ -76,14 +76,5 @@ export const investorController = {
       status: StatusCodes.OK,
       data: interests,
     };
-  }),
-
-  getChats: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const userId = req.user!.id;
-    const chats = await investorService.getChats(userId);
-    return {
-      status: StatusCodes.OK,
-      data: chats,
-    };
-  }),
+  })
 };

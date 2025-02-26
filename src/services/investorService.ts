@@ -180,53 +180,6 @@ export class InvestorService {
       },
     });
   }
-
-  async getChats(investorId: string) {
-    return prisma.chat.findMany({
-      where: {
-        participants: {
-          some: {
-            userId: investorId,
-          },
-        },
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        participants: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-              },
-            },
-          },
-        },
-        messages: {
-          take: 1,
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
-      },
-      orderBy: [
-        {
-          messages: {
-            _count: "desc",
-          },
-        },
-        {
-          createdAt: "desc",
-        },
-      ],
-    });
-  }
 }
 
 export const investorService = new InvestorService(); 
