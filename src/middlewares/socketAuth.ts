@@ -8,21 +8,21 @@ export const socketAuth = async (
   next: (err?: ExtendedError | undefined) => void
 ) => {
   try {
-    const token = socket.handshake.auth.token;
-    if (!token) {
-      throw new Error("Authentication error");
-    }
+    // const token = socket.handshake.auth.token;
+    // if (!token) {
+    //   throw new Error("Authentication error");
+    // }
 
-    const decoded = verifyToken(token, "access");
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.sub },
-    });
+    // const decoded = verifyToken(token, "access");
+    // const user = await prisma.user.findUnique({
+    //   where: { id: decoded.sub },
+    // });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
+    // if (!user) {
+    //   throw new Error("User not found");
+    // }
 
-    socket.data.user = user;
+    // socket.data.user = user;
     next();
   } catch (error) {
     next(new Error("Authentication error"));
