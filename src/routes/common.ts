@@ -7,6 +7,8 @@ import {
   paymentValidation,
   userValidation,
 } from "../validations";
+import { Server } from "socket.io";
+import { SocketService } from "../services/socketService";
 
 const router = express.Router();
 
@@ -47,5 +49,26 @@ router.post(
   commonController.updateFcmToken
 );
 router.get("/chats", commonController.getChats);
+
+router.post("/socket-test", (req, res) => {
+  const { userId, message } = req.body;
+  
+  if (!userId || !message) {
+    return res.status(400).json({ 
+      success: false, 
+      message: "userId and message are required" 
+    });
+  }
+
+  SocketService.emitNewNotification(userId, {
+    title: "Test Notification",
+    message: message
+  });
+
+  return res.json({ 
+    success: true, 
+    message: "Test notification sent" 
+  });
+});
 
 export default router;
