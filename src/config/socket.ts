@@ -12,6 +12,14 @@ export const initializeSocket = (server: HttpServer) => {
     },
   });
 
+  io.engine.on("connection_error", (err) => {
+    console.log("Connection error:", {
+      type: err.code,
+      message: err.message,
+      context: err.context,
+    });
+  });
+
   io.use(socketAuth);
 
   const onlineUsers = new Map<string, string>();
@@ -19,7 +27,20 @@ export const initializeSocket = (server: HttpServer) => {
 
   io.on("connection", async (socket) => {
     const userId = socket.data.user.id;
-    console.log("Client connected:", socket.id);
+    console.log("Client connected:", {
+      socketId: socket.id,
+      userId: userId,
+      handshake: socket.handshake,
+    });
+
+    socket.onAny((eventName, ...args) => {
+      console.log("Received event:", {
+        event: eventName,
+        args,
+        socketId: socket.id,
+        userId,
+      });
+    });
 
     onlineUsers.set(userId, socket.id);
     socket.join(`user:${userId}`);
