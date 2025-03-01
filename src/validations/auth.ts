@@ -19,6 +19,6 @@ export const authValidation = {
 
   resetPassword: z.object({
     token: z.string(),
-    password: z.string().min(6),
+    password: z.string().min(8),
   }),
 };
