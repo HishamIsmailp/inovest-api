@@ -12,4 +12,13 @@ export const authValidation = {
     email: z.string().email(),
     password: z.string(),
   }),
+
+  forgotPassword: z.object({
+    email: z.string().email(),
+  }),
+
+  resetPassword: z.object({
+    token: z.string(),
+    password: z.string().min(6),
+  }),
 };
