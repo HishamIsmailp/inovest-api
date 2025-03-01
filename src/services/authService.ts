@@ -12,7 +12,7 @@ import { verifyToken } from "../utils/jwt";
 import { CreateUserDto, ForgotPasswordDto, LoginDto, ResetPasswordDto } from "../types/auth";
 import { resetPasswordTemplate } from "../utils/emailTemplates";
 import { NotificationService } from "./notificationService";
-import jwt from "jsonwebtoken";
+import { appConfig } from "../config/app.config";
 
 export class AuthService {
   async signup(data: CreateUserDto) {
@@ -104,9 +104,20 @@ export class AuthService {
       throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
     }
 
-    const resetToken = generateResetToken(user.id);
+    const resetToken = generateResetToken(user.id, data.platform);
 
-    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+    let resetLink: string;
+    switch (data.platform) {
+      case "ios":
+        resetLink = `inovest://reset-password?token=${resetToken}`;
+        break;
+      case "android":
+        resetLink = `https://inovest-api-ezgy.vercel.app/reset-password?token=${resetToken}`;
+        break;
+      case "web":
+        resetLink = `${data.clientUrl || appConfig.clientUrl}/reset-password?token=${resetToken}`;
+        break;
+    }
     
     await NotificationService.sendEmail(
       user.email,

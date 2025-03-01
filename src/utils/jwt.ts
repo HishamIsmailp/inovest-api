@@ -5,6 +5,7 @@ interface TokenPayload {
   sub: string;
   role?: string;
   type: "access" | "refresh" | "reset";
+  platform?: "ios" | "android" | "web";
 }
 
 export const generateTokens = (userId: string, role?: string) => {
@@ -22,9 +23,13 @@ export const generateTokens = (userId: string, role?: string) => {
   };
 };
 
-export const generateResetToken = (userId: string) => {
+export const generateResetToken = (userId: string, platform: "ios" | "android" | "web") => {
   return jwt.sign(
-    { sub: userId, type: "reset" },
+    { 
+      sub: userId, 
+      type: "reset",
+      platform 
+    },
     process.env.JWT_SECRET!,
     { expiresIn: "1h" }
   );

@@ -15,6 +15,8 @@ export const authValidation = {
 
   forgotPassword: z.object({
     email: z.string().email(),
+    platform: z.enum(["ios", "android", "web"]),
+    clientUrl: z.string().url().optional()
   }),
 
   resetPassword: z.object({

@@ -19,6 +19,8 @@ export interface TokenPayload {
 
 export interface ForgotPasswordDto {
   email: string;
+  platform: "ios" | "android" | "web";
+  clientUrl?: string;
 }
 
 export interface ResetPasswordDto {
