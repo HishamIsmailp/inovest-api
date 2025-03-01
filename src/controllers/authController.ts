@@ -42,4 +42,22 @@ export const authController = {
       message: "Logged out successfully",
     };
   }),
+
+  forgotPassword: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    await authService.forgotPassword(req.body);
+
+    return {
+      status: StatusCodes.OK,
+      message: "Password reset instructions sent to your email",
+    };
+  }),
+
+  resetPassword: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    await authService.resetPassword(req.body);
+
+    return {
+      status: StatusCodes.OK,
+      message: "Password reset successful",
+    };
+  }),
 };

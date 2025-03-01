@@ -4,7 +4,7 @@ import { ApiError, StatusCodes } from "./index";
 interface TokenPayload {
   sub: string;
   role?: string;
-  type: "access" | "refresh";
+  type: "access" | "refresh" | "reset";
 }
 
 export const generateTokens = (userId: string, role?: string) => {
@@ -22,13 +22,21 @@ export const generateTokens = (userId: string, role?: string) => {
   };
 };
 
+export const generateResetToken = (userId: string) => {
+  return jwt.sign(
+    { sub: userId, type: "reset" },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" }
+  );
+};
+
 export const verifyToken = (
   token: string,
-  type: "access" | "refresh"
+  type: "access" | "refresh" | "reset"
 ): TokenPayload => {
   try {
     const secret =
-      type === "access"
+      type === "access" || type === "reset"
         ? process.env.JWT_SECRET!
         : process.env.JWT_REFRESH_SECRET!;
 

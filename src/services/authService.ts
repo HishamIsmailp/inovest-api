@@ -6,9 +6,13 @@ import {
   comparePassword,
   generateTokens,
   generateAvatarUrl,
+  generateResetToken,
 } from "../utils";
 import { verifyToken } from "../utils/jwt";
-import { CreateUserDto, LoginDto } from "../types/auth";
+import { CreateUserDto, ForgotPasswordDto, LoginDto, ResetPasswordDto } from "../types/auth";
+import { resetPasswordTemplate } from "../utils/emailTemplates";
+import { NotificationService } from "./notificationService";
+import jwt from "jsonwebtoken";
 
 export class AuthService {
   async signup(data: CreateUserDto) {
@@ -89,6 +93,45 @@ export class AuthService {
     }
 
     return generateTokens(user.id, user.role?.currentRole);
+  }
+
+  async forgotPassword(data: ForgotPasswordDto) {
+    const user = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+    }
+
+    const resetToken = generateResetToken(user.id);
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+    
+    await NotificationService.sendEmail(
+      user.email,
+      "Reset Your Password",
+      resetPasswordTemplate(resetLink)
+    );
+
+    return true;
+  }
+
+  async resetPassword(data: ResetPasswordDto) {
+    try {
+      const decoded = verifyToken(data.token, "reset");
+
+      const hashedPassword = await hashPassword(data.password);
+      
+      await prisma.user.update({
+        where: { id: decoded.sub },
+        data: { passwordHash: hashedPassword },
+      });
+
+      return true;
+    } catch (error) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid or expired token");
+    }
   }
 }
 

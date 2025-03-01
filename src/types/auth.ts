@@ -16,3 +16,12 @@ export interface TokenPayload {
   sub: string;
   role?: string;
 }
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  token: string;
+  password: string;
+}
