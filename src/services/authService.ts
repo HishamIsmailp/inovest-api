@@ -13,6 +13,7 @@ import { CreateUserDto, ForgotPasswordDto, LoginDto, ResetPasswordDto } from "..
 import { resetPasswordTemplate } from "../utils/emailTemplates";
 import { NotificationService } from "./notificationService";
 import { appConfig } from "../config/app.config";
+import { welcomeTemplate } from "../templates/emails/welcome";
 
 export class AuthService {
   async signup(data: CreateUserDto) {
@@ -43,6 +44,8 @@ export class AuthService {
           currentRole: data.role,
         },
       });
+
+      await NotificationService.sendEmail(user.email, "Welcome to Inovest", welcomeTemplate(user.name));
 
       return user;
     });

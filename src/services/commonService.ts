@@ -69,7 +69,7 @@ export class CommonService {
           },
         },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
     });
   }
 

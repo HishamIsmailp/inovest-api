@@ -28,5 +28,6 @@ router.put(
   entrepreneurController.updateStatus
 );
 router.get("/notifications", entrepreneurController.getNotifications);
+router.post('/chat/initialize/:investorId/:projectId', auth, entrepreneurController.initializeChat);
 
 export default router;
