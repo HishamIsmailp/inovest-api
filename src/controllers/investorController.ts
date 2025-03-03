@@ -21,7 +21,7 @@ export const investorController = {
 
   getCategoryIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const { id } = req.params;
-    const ideas = await investorService.getCategoryIdeas(id);
+    const ideas = await investorService.getCategoryIdeas(id, req.user!.id);
     return {
       status: StatusCodes.OK,
       data: ideas,

@@ -153,5 +153,18 @@ export const commonController = {
       status: StatusCodes.OK,
       data: chats,
     };
-  })
+  }),
+
+  initializeChat: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+      const entrepreneurId = req.user!.id;
+      const { investorId, projectId } = req.params;
+      
+      const result = await commonService.initializeChat(entrepreneurId, investorId, projectId);
+      
+      return {
+        status: StatusCodes.OK,
+        data: result,
+        message: 'Chat initialized successfully'
+    };
+  }),
 };

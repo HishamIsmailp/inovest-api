@@ -49,7 +49,7 @@ router.post(
   commonController.updateFcmToken
 );
 router.get("/chats", commonController.getChats);
-
+router.post('/chat/initialize/:investorId/:projectId', commonController.initializeChat);
 router.post("/socket-test", (req, res) => {
   const { userId, message } = req.body;
   
