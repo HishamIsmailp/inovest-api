@@ -148,26 +148,5 @@ export const entrepreneurController = {
         },
       };
     }
-  ),
-
-  initializeChat: async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const entrepreneurId = req.user!.id;
-      const { investorId, projectId } = req.params;
-      
-      const result = await entrepreneurService.initializeChat(entrepreneurId, investorId, projectId);
-      
-      return res.status(200).json({
-        success: true,
-        chatId: result.chatId,
-        message: 'Chat initialized successfully'
-      });
-    } catch (error) {
-      console.error('Error initializing chat:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to initialize chat'
-      });
-    }
-  },
+  )
 };

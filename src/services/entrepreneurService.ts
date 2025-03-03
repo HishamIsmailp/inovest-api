@@ -155,59 +155,6 @@ export class EntrepreneurService {
       },
     });
   }
-
-  async initializeChat(
-    entrepreneurId: string,
-    investorId: string,
-    projectId: string
-  ): Promise<{ chatId: string }> {
-    let chat = await prisma.chat.findFirst({
-      where: {
-        projectId,
-        AND: [
-          {
-            participants: {
-              some: {
-                userId: entrepreneurId,
-              },
-            },
-          },
-          {
-            participants: {
-              some: {
-                userId: investorId,
-              },
-            },
-          },
-        ],
-      },
-    });
-
-    if (!chat) {
-      chat = await prisma.chat.create({
-        data: {
-          project: {
-            connect: { id: projectId },
-          },
-          participants: {
-            create: [{ userId: entrepreneurId }, { userId: investorId }],
-          },
-          messages: {
-            create: {
-              content:
-                "Hi, I'm interested in discussing potential investment opportunities.",
-              senderId: entrepreneurId,
-              messageType: "TEXT",
-            },
-          },
-        },
-      });
-    }
-
-    return {
-      chatId: chat.id,
-    };
-  }
 }
 
 export const entrepreneurService = new EntrepreneurService();

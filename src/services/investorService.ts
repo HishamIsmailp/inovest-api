@@ -41,7 +41,7 @@ export class InvestorService {
     });
   }
 
-  async getCategoryIdeas(categoryId: string) {
+  async getCategoryIdeas(categoryId: string, userId: string) {
     return prisma.project.findMany({
       where: {
         categoryId,
@@ -54,6 +54,11 @@ export class InvestorService {
             id: true,
             name: true,
             imageUrl: true,
+          },
+        },
+        interests: {
+          where: {
+            investorId: userId,
           },
         },
       },
