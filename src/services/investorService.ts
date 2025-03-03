@@ -13,9 +13,9 @@ export class InvestorService {
     });
   }
 
-  async getTopIdeas() {
+  async getTopIdeas(userId: string) {
     return prisma.project.findMany({
-      where: { status: "AVAILABLE" },
+      where: { status: "AVAILABLE", entrepreneurId: { not: userId } },
       include: {
         category: true,
         entrepreneur: {
@@ -38,6 +38,24 @@ export class InvestorService {
         },
       },
       take: 10,
+    });
+  }
+
+  async getIdeas(userId: string) {
+    return prisma.project.findMany({
+      where: { status: "AVAILABLE", entrepreneurId: { not: userId } },
+      include: {
+        category: true,
+        entrepreneur: {
+          select: { id: true, name: true, imageUrl: true },
+        },
+        _count: {
+          select: {
+            ratings: true,
+            interests: true,
+          },
+        }
+      },
     });
   }
 

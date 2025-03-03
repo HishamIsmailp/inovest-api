@@ -19,6 +19,14 @@ export const investorController = {
     };
   }),
 
+  getIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    const ideas = await investorService.getIdeas(req.user!.id);
+    return {
+      status: StatusCodes.OK,
+      data: ideas,
+    };
+  }),
+
   getCategoryIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const { id } = req.params;
     const ideas = await investorService.getCategoryIdeas(id, req.user!.id);
