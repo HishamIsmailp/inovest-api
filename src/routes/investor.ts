@@ -13,6 +13,7 @@ router.use(checkRole("INVESTOR"));
 router.get("/categories", investorController.getCategories);
 router.get("/ideas/top", investorController.getTopIdeas);
 router.get("/categories/:id/ideas", investorController.getCategoryIdeas);
+router.get("/ideas", investorController.getIdeas);
 router.get("/ideas/:id", investorController.getIdeaDetail);
 router.post(
   "/ideas/:id/rate",
