@@ -12,7 +12,7 @@ export const investorController = {
   }),
 
   getTopIdeas: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const topIdeas = await investorService.getTopIdeas();
+    const topIdeas = await investorService.getTopIdeas(req.user!.id);
     return {
       status: StatusCodes.OK,
       data: topIdeas,
