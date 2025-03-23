@@ -2,8 +2,8 @@ import { prisma } from "../config";
 import { ApiError, StatusCodes } from "../utils";
 import { UpdateProfileDto, UpdateRoleDto } from "../types/common";
 import { MessageType } from "@prisma/client";
-import { SocketService } from './socketService';
-import { NotificationService } from './notificationService';
+import { SocketService } from "./socketService";
+import { NotificationService } from "./notificationService";
 
 export class CommonService {
   async updateProfile(userId: string, data: UpdateProfileDto) {
@@ -118,8 +118,8 @@ export class CommonService {
     });
 
     const otherParticipants = chat.participants
-      .filter(p => p.userId !== userId)
-      .map(p => p.user);
+      .filter((p) => p.userId !== userId)
+      .map((p) => p.user);
 
     for (const participant of otherParticipants) {
       await NotificationService.sendNotification(
@@ -281,14 +281,12 @@ export class CommonService {
             connect: { id: projectId },
           },
           participants: {
-            create: [
-              { userId: entrepreneurId },
-              { userId: investorId }
-            ],
+            create: [{ userId: entrepreneurId }, { userId: investorId }],
           },
           messages: {
             create: {
-              content: "Hi, I'm interested in discussing potential investment opportunities.",
+              content:
+                "Hi, I'm interested in discussing potential investment opportunities.",
               senderId: entrepreneurId,
               messageType: "TEXT",
             },
