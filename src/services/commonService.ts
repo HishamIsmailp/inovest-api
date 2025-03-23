@@ -280,20 +280,25 @@ export class CommonService {
           project: {
             connect: { id: projectId },
           },
-          participants: {
-            create: [{ userId: entrepreneurId }, { userId: investorId }],
-          },
-          messages: {
-            create: {
-              content:
-                "Hi, I'm interested in discussing potential investment opportunities.",
-              senderId: entrepreneurId,
-              messageType: "TEXT",
-            },
-          },
         },
         include: {
           participants: true,
+        },
+      });
+
+      await tx.chatParticipant.createMany({
+        data: [
+          { chatId: newChat.id, userId: entrepreneurId },
+          { chatId: newChat.id, userId: investorId }
+        ],
+      });
+
+      await tx.message.create({
+        data: {
+          chatId: newChat.id,
+          senderId: entrepreneurId,
+          content: "Hi, I'm interested in discussing potential investment opportunities.",
+          messageType: "TEXT",
         },
       });
 
