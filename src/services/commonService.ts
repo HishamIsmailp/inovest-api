@@ -212,8 +212,7 @@ export class CommonService {
     investorId: string,
     projectId: string
   ): Promise<{ chatId: string }> {
-    // First, try to find an existing chat for this project and users
-    let chat = await prisma.chat.findFirst({
+    const existingChat = await prisma.chat.findFirst({
       where: {
         projectId,
         AND: [
@@ -238,70 +237,72 @@ export class CommonService {
       },
     });
 
-    if (!chat) {
-      chat = await prisma.$transaction(async (tx) => {
-        const existingParticipants = await tx.chatParticipant.findMany({
-          where: {
-            userId: {
-              in: [entrepreneurId, investorId]
-            },
-            chat: {
-              projectId
-            }
-          }
-        });
-
-        if (existingParticipants.length > 0) {
-          const existingChat = await tx.chat.findFirst({
-            where: {
-              projectId,
-              participants: {
-                some: {
-                  userId: entrepreneurId
-                }
-              }
-            },
-            include: {
-              participants: true
-            }
-          });
-
-          if (existingChat) {
-            return existingChat;
-          }
-        }
-
-        const newChat = await tx.chat.create({
-          data: {
-            project: {
-              connect: { id: projectId },
-            },
-            participants: {
-              create: [
-                { userId: entrepreneurId },
-                { userId: investorId }
-              ],
-            },
-            messages: {
-              create: {
-                content: "Hi, I'm interested in discussing potential investment opportunities.",
-                senderId: entrepreneurId,
-                messageType: "TEXT",
-              },
-            },
-          },
-          include: {
-            participants: true,
-          },
-        });
-
-        return newChat;
-      });
+    if (existingChat) {
+      return {
+        chatId: existingChat.id,
+      };
     }
 
-    return {
-      chatId: chat.id,
-    };
+    return prisma.$transaction(async (tx) => {
+      const chat = await tx.chat.findFirst({
+        where: {
+          projectId,
+          AND: [
+            {
+              participants: {
+                some: {
+                  userId: entrepreneurId,
+                },
+              },
+            },
+            {
+              participants: {
+                some: {
+                  userId: investorId,
+                },
+              },
+            },
+          ],
+        },
+        include: {
+          participants: true,
+        },
+      });
+
+      if (chat) {
+        return {
+          chatId: chat.id,
+        };
+      }
+
+      const newChat = await tx.chat.create({
+        data: {
+          project: {
+            connect: { id: projectId },
+          },
+          participants: {
+            create: [
+              { userId: entrepreneurId },
+              { userId: investorId }
+            ],
+          },
+          messages: {
+            create: {
+              content: "Hi, I'm interested in discussing potential investment opportunities.",
+              senderId: entrepreneurId,
+              messageType: "TEXT",
+            },
+          },
+        },
+        include: {
+          participants: true,
+        },
+      });
+
+      return {
+        chatId: newChat.id,
+      };
+    });
   }
 }
 
