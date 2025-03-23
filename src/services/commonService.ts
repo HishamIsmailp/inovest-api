@@ -286,12 +286,29 @@ export class CommonService {
         },
       });
 
-      await tx.chatParticipant.createMany({
-        data: [
-          { chatId: newChat.id, userId: entrepreneurId },
-          { chatId: newChat.id, userId: investorId }
-        ],
+      const existingParticipants = await tx.chatParticipant.findMany({
+        where: {
+          chatId: newChat.id,
+          userId: {
+            in: [entrepreneurId, investorId]
+          }
+        }
       });
+
+      const participantsToCreate = [
+        { chatId: newChat.id, userId: entrepreneurId },
+        { chatId: newChat.id, userId: investorId }
+      ].filter(participant => 
+        !existingParticipants.some(existing => 
+          existing.userId === participant.userId
+        )
+      );
+
+      if (participantsToCreate.length > 0) {
+        await tx.chatParticipant.createMany({
+          data: participantsToCreate,
+        });
+      }
 
       await tx.message.create({
         data: {
