@@ -212,6 +212,7 @@ export class CommonService {
     investorId: string,
     projectId: string
   ): Promise<{ chatId: string }> {
+    // First, try to find an existing chat for this project and users
     let chat = await prisma.chat.findFirst({
       where: {
         projectId,
@@ -232,25 +233,34 @@ export class CommonService {
           },
         ],
       },
+      include: {
+        participants: true,
+      },
     });
 
     if (!chat) {
+      // Create a new chat if one doesn't exist
       chat = await prisma.chat.create({
         data: {
           project: {
             connect: { id: projectId },
           },
           participants: {
-            create: [{ userId: entrepreneurId }, { userId: investorId }],
+            create: [
+              { userId: entrepreneurId },
+              { userId: investorId }
+            ],
           },
           messages: {
             create: {
-              content:
-                "Hi, I'm interested in discussing potential investment opportunities.",
+              content: "Hi, I'm interested in discussing potential investment opportunities.",
               senderId: entrepreneurId,
               messageType: "TEXT",
             },
           },
+        },
+        include: {
+          participants: true,
         },
       });
     }
