@@ -212,6 +212,7 @@ export class CommonService {
     investorId: string,
     projectId: string
   ): Promise<{ chatId: string }> {
+    // First try to find an existing chat
     const existingChat = await prisma.chat.findFirst({
       where: {
         projectId,
@@ -280,42 +281,22 @@ export class CommonService {
           project: {
             connect: { id: projectId },
           },
+          participants: {
+            create: [
+              { userId: entrepreneurId },
+              { userId: investorId }
+            ],
+          },
+          messages: {
+            create: {
+              content: "Hi, I'm interested in discussing potential investment opportunities.",
+              senderId: entrepreneurId,
+              messageType: "TEXT",
+            },
+          },
         },
         include: {
           participants: true,
-        },
-      });
-
-      const existingParticipants = await tx.chatParticipant.findMany({
-        where: {
-          chatId: newChat.id,
-          userId: {
-            in: [entrepreneurId, investorId]
-          }
-        }
-      });
-
-      const participantsToCreate = [
-        { chatId: newChat.id, userId: entrepreneurId },
-        { chatId: newChat.id, userId: investorId }
-      ].filter(participant => 
-        !existingParticipants.some(existing => 
-          existing.userId === participant.userId
-        )
-      );
-
-      if (participantsToCreate.length > 0) {
-        await tx.chatParticipant.createMany({
-          data: participantsToCreate,
-        });
-      }
-
-      await tx.message.create({
-        data: {
-          chatId: newChat.id,
-          senderId: entrepreneurId,
-          content: "Hi, I'm interested in discussing potential investment opportunities.",
-          messageType: "TEXT",
         },
       });
 
