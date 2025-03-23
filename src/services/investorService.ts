@@ -37,7 +37,7 @@ export class InvestorService {
           _count: "desc",
         },
       },
-      take: 10,
+      // take: 10,
     });
   }
 
