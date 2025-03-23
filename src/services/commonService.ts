@@ -212,40 +212,8 @@ export class CommonService {
     investorId: string,
     projectId: string
   ): Promise<{ chatId: string }> {
-    // First try to find an existing chat
-    const existingChat = await prisma.chat.findFirst({
-      where: {
-        projectId,
-        AND: [
-          {
-            participants: {
-              some: {
-                userId: entrepreneurId,
-              },
-            },
-          },
-          {
-            participants: {
-              some: {
-                userId: investorId,
-              },
-            },
-          },
-        ],
-      },
-      include: {
-        participants: true,
-      },
-    });
-
-    if (existingChat) {
-      return {
-        chatId: existingChat.id,
-      };
-    }
-
     return prisma.$transaction(async (tx) => {
-      const chat = await tx.chat.findFirst({
+      const existingChat = await tx.chat.findFirst({
         where: {
           projectId,
           AND: [
@@ -265,14 +233,11 @@ export class CommonService {
             },
           ],
         },
-        include: {
-          participants: true,
-        },
       });
 
-      if (chat) {
+      if (existingChat) {
         return {
-          chatId: chat.id,
+          chatId: existingChat.id,
         };
       }
 
@@ -282,30 +247,28 @@ export class CommonService {
             connect: { id: projectId },
           },
         },
-        include: {
-          participants: true,
-        },
       });
 
-      await tx.chatParticipant.create({
-        data: {
-          chatId: newChat.id,
-          userId: entrepreneurId,
-        },
-      });
-
-      await tx.chatParticipant.create({
-        data: {
-          chatId: newChat.id,
-          userId: investorId,
-        },
+      await tx.chatParticipant.createMany({
+        data: [
+          {
+            chatId: newChat.id,
+            userId: entrepreneurId,
+          },
+          {
+            chatId: newChat.id,
+            userId: investorId,
+          },
+        ],
+        skipDuplicates: true,
       });
 
       await tx.message.create({
         data: {
           chatId: newChat.id,
           senderId: entrepreneurId,
-          content: "Hi, I'm interested in discussing potential investment opportunities.",
+          content:
+            "Hi, I'm interested in discussing potential investment opportunities.",
           messageType: "TEXT",
         },
       });
