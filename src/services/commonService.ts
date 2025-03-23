@@ -239,29 +239,63 @@ export class CommonService {
     });
 
     if (!chat) {
-      // Create a new chat if one doesn't exist
-      chat = await prisma.chat.create({
-        data: {
-          project: {
-            connect: { id: projectId },
-          },
-          participants: {
-            create: [
-              { userId: entrepreneurId },
-              { userId: investorId }
-            ],
-          },
-          messages: {
-            create: {
-              content: "Hi, I'm interested in discussing potential investment opportunities.",
-              senderId: entrepreneurId,
-              messageType: "TEXT",
+      chat = await prisma.$transaction(async (tx) => {
+        const existingParticipants = await tx.chatParticipant.findMany({
+          where: {
+            userId: {
+              in: [entrepreneurId, investorId]
+            },
+            chat: {
+              projectId
+            }
+          }
+        });
+
+        if (existingParticipants.length > 0) {
+          const existingChat = await tx.chat.findFirst({
+            where: {
+              projectId,
+              participants: {
+                some: {
+                  userId: entrepreneurId
+                }
+              }
+            },
+            include: {
+              participants: true
+            }
+          });
+
+          if (existingChat) {
+            return existingChat;
+          }
+        }
+
+        const newChat = await tx.chat.create({
+          data: {
+            project: {
+              connect: { id: projectId },
+            },
+            participants: {
+              create: [
+                { userId: entrepreneurId },
+                { userId: investorId }
+              ],
+            },
+            messages: {
+              create: {
+                content: "Hi, I'm interested in discussing potential investment opportunities.",
+                senderId: entrepreneurId,
+                messageType: "TEXT",
+              },
             },
           },
-        },
-        include: {
-          participants: true,
-        },
+          include: {
+            participants: true,
+          },
+        });
+
+        return newChat;
       });
     }
 
