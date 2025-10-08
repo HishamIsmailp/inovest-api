@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import logger from "./logger";
-import { StatusCodes } from ".";
+import { Request, Response, NextFunction } from 'express';
+import logger from './logger';
+import { StatusCodes } from '.';
 
 export interface ApiResponse {
   status: number;
@@ -36,7 +36,7 @@ export const asyncHandler = (handler: AsyncRequestHandler) => {
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
-        logger.error("Request error:", {
+        logger.error('Request error:', {
           error: error.message,
           stack: error.stack,
           path: req.path,
@@ -53,7 +53,7 @@ export const asyncHandler = (handler: AsyncRequestHandler) => {
 
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Internal server error",
+        message: 'Internal server error',
       });
     }
   };

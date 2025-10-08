@@ -1,28 +1,28 @@
-import express from "express";
-import { authController } from "../controllers/authController";
-import { validateRequest } from "../middlewares";
-import { authValidation } from "../validations";
+import express from 'express';
+import { authController } from '../controllers/authController';
+import { validateRequest } from '../middlewares';
+import { authValidation } from '../validations';
 
 const router = express.Router();
 
 router.post(
-  "/signup",
+  '/signup',
   validateRequest(authValidation.signup),
   authController.signup
 );
 router.post(
-  "/login",
+  '/login',
   validateRequest(authValidation.login),
   authController.login
 );
-router.post("/refresh-token", authController.refreshToken);
+router.post('/refresh-token', authController.refreshToken);
 router.post(
-  "/forgot-password",
+  '/forgot-password',
   validateRequest(authValidation.forgotPassword),
   authController.forgotPassword
 );
 router.post(
-  "/reset-password",
+  '/reset-password',
   validateRequest(authValidation.resetPassword),
   authController.resetPassword
 );

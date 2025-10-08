@@ -1,6 +1,6 @@
-import { Request } from "express";
-import { asyncHandler, ApiResponse, StatusCodes } from "../utils";
-import { categoryService } from "../services/categoryService";
+import { Request } from 'express';
+import { asyncHandler, ApiResponse, StatusCodes } from '../utils';
+import { categoryService } from '../services/categoryService';
 
 export const categoryController = {
   createCategory: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -9,12 +9,12 @@ export const categoryController = {
     return {
       status: StatusCodes.CREATED,
       data: category,
-      message: "Category created successfully",
+      message: 'Category created successfully',
     };
   }),
 
   getAllCategories: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-    const includeProjectCount = req.query.includeProjectCount === "true";
+    const includeProjectCount = req.query.includeProjectCount === 'true';
     const categories =
       await categoryService.getAllCategories(includeProjectCount);
 
@@ -42,7 +42,7 @@ export const categoryController = {
     return {
       status: StatusCodes.OK,
       data: category,
-      message: "Category updated successfully",
+      message: 'Category updated successfully',
     };
   }),
 
@@ -51,7 +51,7 @@ export const categoryController = {
 
     return {
       status: StatusCodes.OK,
-      message: "Category deleted successfully",
+      message: 'Category deleted successfully',
     };
   }),
 };

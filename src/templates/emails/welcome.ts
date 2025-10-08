@@ -31,4 +31,4 @@ export const welcomeTemplate = (name: string) => `
       <p>© 2024 Investment Platform. All rights reserved.</p>
     </div>
   </div>
-`; 
+`;

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const categoryValidation = {
   create: z.object({
@@ -12,6 +12,6 @@ export const categoryValidation = {
       description: z.string().max(500).optional(),
     })
     .refine((data) => Object.keys(data).length > 0, {
-      message: "At least one field must be provided for update",
+      message: 'At least one field must be provided for update',
     }),
 };

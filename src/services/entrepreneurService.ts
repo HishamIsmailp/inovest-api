@@ -1,7 +1,7 @@
-import { prisma } from "../config";
-import { ApiError, StatusCodes } from "../utils";
-import { CreateIdeaDto, UpdateIdeaDto } from "../types/entrepreneur";
-import { ProjectStatus, Prisma } from "@prisma/client";
+import { prisma } from '../config';
+import { ApiError, StatusCodes } from '../utils';
+import { CreateIdeaDto, UpdateIdeaDto } from '../types/entrepreneur';
+import { ProjectStatus, Prisma } from '@prisma/client';
 
 export class EntrepreneurService {
   async createIdea(entrepreneurId: string, data: CreateIdeaDto) {
@@ -10,14 +10,14 @@ export class EntrepreneurService {
     });
 
     if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Category not found');
     }
 
     return prisma.project.create({
       data: {
         ...data,
         entrepreneurId,
-        status: "AVAILABLE",
+        status: 'AVAILABLE',
       },
       include: {
         category: true,
@@ -45,7 +45,7 @@ export class EntrepreneurService {
     });
 
     if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Project not found');
     }
 
     return prisma.project.update({
@@ -73,7 +73,7 @@ export class EntrepreneurService {
     });
 
     if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Project not found');
     }
 
     return prisma.$transaction([
@@ -112,7 +112,7 @@ export class EntrepreneurService {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -129,7 +129,7 @@ export class EntrepreneurService {
     });
 
     if (!project) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Project not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Project not found');
     }
 
     const updateData: Prisma.ProjectUpdateInput = {
@@ -151,7 +151,7 @@ export class EntrepreneurService {
         userId: entrepreneurId,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     });
   }

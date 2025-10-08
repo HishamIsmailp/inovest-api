@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
-import { prisma } from "../config";
-import { entrepreneurService } from "../services/entrepreneurService";
+import { Request, Response } from 'express';
+import { asyncHandler, ApiResponse, ApiError, StatusCodes } from '../utils';
+import { prisma } from '../config';
+import { entrepreneurService } from '../services/entrepreneurService';
 
 export const entrepreneurController = {
   createIdea: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -13,7 +13,7 @@ export const entrepreneurController = {
     return {
       status: StatusCodes.CREATED,
       data: project,
-      message: "Project created successfully",
+      message: 'Project created successfully',
     };
   }),
 
@@ -27,7 +27,7 @@ export const entrepreneurController = {
     return {
       status: StatusCodes.OK,
       data: updated,
-      message: "Project updated successfully",
+      message: 'Project updated successfully',
     };
   }),
 
@@ -36,7 +36,7 @@ export const entrepreneurController = {
 
     return {
       status: StatusCodes.OK,
-      message: "Project deleted successfully",
+      message: 'Project deleted successfully',
     };
   }),
 
@@ -59,7 +59,7 @@ export const entrepreneurController = {
     return {
       status: StatusCodes.OK,
       data: updated,
-      message: "Project status updated successfully",
+      message: 'Project status updated successfully',
     };
   }),
 
@@ -83,12 +83,12 @@ export const entrepreneurController = {
           where: { entrepreneurId },
         }),
         prisma.project.groupBy({
-          by: ["status"],
+          by: ['status'],
           where: { entrepreneurId },
           _count: true,
           orderBy: {
             _count: {
-              status: "desc",
+              status: 'desc',
             },
           },
         }),
@@ -131,7 +131,7 @@ export const entrepreneurController = {
             },
           },
           orderBy: {
-            createdAt: "desc",
+            createdAt: 'desc',
           },
           take: 5,
         }),
@@ -148,5 +148,5 @@ export const entrepreneurController = {
         },
       };
     }
-  )
+  ),
 };

@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import { Server } from 'socket.io';
 
 export class SocketService {
   private static io: Server;
@@ -8,23 +8,23 @@ export class SocketService {
   }
 
   static emitNewMessage(chatId: string, message: any) {
-    this.io.to(`chat:${chatId}`).emit("new_message", message);
+    this.io.to(`chat:${chatId}`).emit('new_message', message);
   }
 
   static emitNewNotification(userId: string, notification: any) {
-    this.io.to(`user:${userId}`).emit("new_notification", notification);
+    this.io.to(`user:${userId}`).emit('new_notification', notification);
   }
 
   static emitProjectUpdate(projectId: string, update: any) {
-    this.io.to(`project:${projectId}`).emit("project_update", update);
+    this.io.to(`project:${projectId}`).emit('project_update', update);
   }
 
-  static emitUserStatus(userId: string, status: "online" | "offline") {
-    this.io.emit("user_status", { userId, status });
+  static emitUserStatus(userId: string, status: 'online' | 'offline') {
+    this.io.emit('user_status', { userId, status });
   }
 
   static emitTypingStatus(chatId: string, userId: string, isTyping: boolean) {
-    this.io.to(`chat:${chatId}`).emit("typing_status", {
+    this.io.to(`chat:${chatId}`).emit('typing_status', {
       userId,
       chatId,
       isTyping,

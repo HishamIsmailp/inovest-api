@@ -1,6 +1,6 @@
-import { prisma } from "../config";
-import { ApiError, StatusCodes } from "../utils";
-import { CreateCategoryDto, UpdateCategoryDto } from "../types/category";
+import { prisma } from '../config';
+import { ApiError, StatusCodes } from '../utils';
+import { CreateCategoryDto, UpdateCategoryDto } from '../types/category';
 
 export class CategoryService {
   async createCategory(data: CreateCategoryDto) {
@@ -11,7 +11,7 @@ export class CategoryService {
     if (existingCategory) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        "Category with this name already exists"
+        'Category with this name already exists'
       );
     }
 
@@ -29,7 +29,7 @@ export class CategoryService {
             }
           : false,
       },
-      orderBy: { name: "asc" },
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -44,7 +44,7 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Category not found');
     }
 
     return category;
@@ -56,7 +56,7 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Category not found');
     }
 
     if (data.name) {
@@ -72,7 +72,7 @@ export class CategoryService {
       if (existingCategory) {
         throw new ApiError(
           StatusCodes.CONFLICT,
-          "Category with this name already exists"
+          'Category with this name already exists'
         );
       }
     }
@@ -94,13 +94,13 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Category not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Category not found');
     }
 
     if (category._count.projects > 0) {
       throw new ApiError(
         StatusCodes.CONFLICT,
-        "Cannot delete category with existing projects"
+        'Cannot delete category with existing projects'
       );
     }
 
@@ -110,4 +110,4 @@ export class CategoryService {
   }
 }
 
-export const categoryService = new CategoryService(); 
+export const categoryService = new CategoryService();

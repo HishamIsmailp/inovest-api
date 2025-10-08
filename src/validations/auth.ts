@@ -1,11 +1,11 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const authValidation = {
   signup: z.object({
     name: z.string().min(2).max(100),
     email: z.string().email(),
     password: z.string().min(8),
-    role: z.enum(["INVESTOR", "ENTREPRENEUR"]),
+    role: z.enum(['INVESTOR', 'ENTREPRENEUR']),
   }),
 
   login: z.object({
@@ -15,8 +15,8 @@ export const authValidation = {
 
   forgotPassword: z.object({
     email: z.string().email(),
-    platform: z.enum(["ios", "android", "web"]),
-    clientUrl: z.string().url().optional()
+    platform: z.enum(['ios', 'android', 'web']),
+    clientUrl: z.string().url().optional(),
   }),
 
   resetPassword: z.object({

@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from '@prisma/client';
 
 export interface CreateUserDto {
   name: string;
@@ -19,7 +19,7 @@ export interface TokenPayload {
 
 export interface ForgotPasswordDto {
   email: string;
-  platform: "ios" | "android" | "web";
+  platform: 'ios' | 'android' | 'web';
   clientUrl?: string;
 }
 
