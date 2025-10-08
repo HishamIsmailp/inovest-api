@@ -1,9 +1,9 @@
-import { prisma } from "../config";
-import { ApiError, StatusCodes } from "../utils";
-import { UpdateProfileDto, UpdateRoleDto } from "../types/common";
-import { MessageType } from "@prisma/client";
-import { SocketService } from "./socketService";
-import { NotificationService } from "./notificationService";
+import { prisma } from '../config';
+import { ApiError, StatusCodes } from '../utils';
+import { UpdateProfileDto, UpdateRoleDto } from '../types/common';
+import { MessageType } from '@prisma/client';
+import { SocketService } from './socketService';
+import { NotificationService } from './notificationService';
 
 export class CommonService {
   async updateProfile(userId: string, data: UpdateProfileDto) {
@@ -29,7 +29,7 @@ export class CommonService {
     });
 
     if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
     }
 
     return user;
@@ -55,7 +55,7 @@ export class CommonService {
     });
 
     if (!chat) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Chat not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Chat not found');
     }
 
     return prisma.message.findMany({
@@ -69,7 +69,7 @@ export class CommonService {
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -96,7 +96,7 @@ export class CommonService {
     });
 
     if (!chat) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Chat not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Chat not found');
     }
 
     const message = await prisma.message.create({
@@ -124,9 +124,9 @@ export class CommonService {
     for (const participant of otherParticipants) {
       await NotificationService.sendNotification(
         participant.id,
-        "New Message",
+        'New Message',
         content,
-        "MESSAGE"
+        'MESSAGE'
       );
     }
 
@@ -138,7 +138,7 @@ export class CommonService {
   async getNotifications(userId: string) {
     return prisma.notification.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -151,7 +151,7 @@ export class CommonService {
     });
 
     if (!notification) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Notification not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Notification not found');
     }
 
     return prisma.notification.update({
@@ -190,18 +190,18 @@ export class CommonService {
         messages: {
           take: 1,
           orderBy: {
-            createdAt: "desc",
+            createdAt: 'desc',
           },
         },
       },
       orderBy: [
         {
           messages: {
-            _count: "desc",
+            _count: 'desc',
           },
         },
         {
-          createdAt: "desc",
+          createdAt: 'desc',
         },
       ],
     });
@@ -269,7 +269,7 @@ export class CommonService {
           senderId: entrepreneurId,
           content:
             "Hi, I'm interested in discussing potential investment opportunities.",
-          messageType: "TEXT",
+          messageType: 'TEXT',
         },
       });
 

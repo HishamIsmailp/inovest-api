@@ -1,4 +1,4 @@
-import { Role, MessageType, ProjectStatus } from "@prisma/client";
+import { Role, MessageType, ProjectStatus } from '@prisma/client';
 
 export interface UpdateProfileDto {
   name?: string;

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const projectValidation = {
   create: z.object({
@@ -16,7 +16,7 @@ export const projectValidation = {
   }),
 
   updateStatus: z.object({
-    status: z.enum(["AVAILABLE", "UNDER_DISCUSSION", "BOOKED", "INVESTED"]),
+    status: z.enum(['AVAILABLE', 'UNDER_DISCUSSION', 'BOOKED', 'INVESTED']),
   }),
 
   rate: z.object({

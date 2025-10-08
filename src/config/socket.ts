@@ -1,19 +1,19 @@
-import { Server } from "socket.io";
-import { Server as HttpServer } from "http";
-import { socketAuth } from "../middlewares/socketAuth";
-import { SocketService } from "../services/socketService";
-import prisma from "./database";
+import { Server } from 'socket.io';
+import { Server as HttpServer } from 'http';
+import { socketAuth } from '../middlewares/socketAuth';
+import { SocketService } from '../services/socketService';
+import prisma from './database';
 
 export const initializeSocket = (server: HttpServer) => {
   const io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL,
-      methods: ["GET", "POST"],
+      methods: ['GET', 'POST'],
     },
   });
 
-  io.engine.on("connection_error", (err) => {
-    console.log("Connection error:", {
+  io.engine.on('connection_error', (err) => {
+    console.log('Connection error:', {
       type: err.code,
       message: err.message,
       context: err.context,
@@ -25,16 +25,16 @@ export const initializeSocket = (server: HttpServer) => {
   const onlineUsers = new Map<string, string>();
   const typingUsers = new Map<string, { chatId: string; timestamp: number }>();
 
-  io.on("connection", async (socket) => {
+  io.on('connection', async (socket) => {
     const userId = socket.data.user.id;
-    console.log("Client connected:", {
+    console.log('Client connected:', {
       socketId: socket.id,
       userId: userId,
       handshake: socket.handshake,
     });
 
     socket.onAny((eventName, ...args) => {
-      console.log("Received event:", {
+      console.log('Received event:', {
         event: eventName,
         args,
         socketId: socket.id,
@@ -50,45 +50,45 @@ export const initializeSocket = (server: HttpServer) => {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        lastSeen: new Date()
-      }
+        lastSeen: new Date(),
+      },
     });
 
-    socket.on("join_chat", (chatId: string) => {
+    socket.on('join_chat', (chatId: string) => {
       socket.join(`chat:${chatId}`);
     });
 
-    socket.on("typing_start", (chatId: string) => {
+    socket.on('typing_start', (chatId: string) => {
       typingUsers.set(userId, { chatId, timestamp: Date.now() });
       SocketService.emitTypingStatus(chatId, userId, true);
     });
 
-    socket.on("typing_end", (chatId: string) => {
+    socket.on('typing_end', (chatId: string) => {
       typingUsers.delete(userId);
       SocketService.emitTypingStatus(chatId, userId, false);
     });
 
-    socket.on("join_project", (projectId: string) => {
+    socket.on('join_project', (projectId: string) => {
       socket.join(`project:${projectId}`);
     });
 
-    socket.on("project_update", (projectId: string, update: any) => {
+    socket.on('project_update', (projectId: string, update: any) => {
       SocketService.emitProjectUpdate(projectId, update);
     });
 
-    socket.on("disconnect", async () => {
-      console.log("Client disconnected:", socket.id);
-      
+    socket.on('disconnect', async () => {
+      console.log('Client disconnected:', socket.id);
+
       onlineUsers.delete(userId);
       typingUsers.delete(userId);
-      
+
       SocketService.emitUserStatus(userId, 'offline');
 
       await prisma.user.update({
         where: { id: userId },
         data: {
-          lastSeen: new Date()
-        }
+          lastSeen: new Date(),
+        },
       });
     });
   });

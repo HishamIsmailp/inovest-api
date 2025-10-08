@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { z, ZodError } from "zod";
-import { StatusCodes } from "http-status-codes";
-import { ApiError } from "../utils";
+import { Request, Response, NextFunction } from 'express';
+import { z, ZodError } from 'zod';
+import { StatusCodes } from 'http-status-codes';
+import { ApiError } from '../utils';
 
 export function validateRequest(schema: z.ZodType<any>) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -11,8 +11,8 @@ export function validateRequest(schema: z.ZodType<any>) {
     } catch (error) {
       if (error instanceof ZodError) {
         const errorMessages = error.errors
-          .map((issue: any) => `${issue.path.join(".")} is ${issue.message}`)
-          .join(", ");
+          .map((issue: any) => `${issue.path.join('.')} is ${issue.message}`)
+          .join(', ');
         const apiError = new ApiError(StatusCodes.BAD_REQUEST, errorMessages);
         return res.status(apiError.statusCode).json({
           success: false,
@@ -21,7 +21,7 @@ export function validateRequest(schema: z.ZodType<any>) {
       } else {
         const apiError = new ApiError(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          "Internal Server Error"
+          'Internal Server Error'
         );
         return res.status(apiError.statusCode).json({
           success: false,

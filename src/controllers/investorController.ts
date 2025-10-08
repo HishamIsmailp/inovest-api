@@ -1,6 +1,6 @@
-import { Request } from "express";
-import { ApiResponse, asyncHandler, StatusCodes } from "../utils";
-import { investorService } from "../services/investorService";
+import { Request } from 'express';
+import { ApiResponse, asyncHandler, StatusCodes } from '../utils';
+import { investorService } from '../services/investorService';
 
 export const investorController = {
   getCategories: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -60,7 +60,7 @@ export const investorController = {
     return {
       status: StatusCodes.OK,
       data: updatedRating,
-      message: "Rating updated successfully",
+      message: 'Rating updated successfully',
     };
   }),
 
@@ -73,7 +73,7 @@ export const investorController = {
     return {
       status: StatusCodes.CREATED,
       data: interest,
-      message: "Interest shown successfully",
+      message: 'Interest shown successfully',
     };
   }),
 
@@ -84,5 +84,5 @@ export const investorController = {
       status: StatusCodes.OK,
       data: interests,
     };
-  })
+  }),
 };

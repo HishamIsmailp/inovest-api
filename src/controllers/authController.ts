@@ -1,6 +1,6 @@
-import { Request } from "express";
-import { asyncHandler, ApiError, ApiResponse, StatusCodes } from "../utils";
-import { authService } from "../services/authService";
+import { Request } from 'express';
+import { asyncHandler, ApiError, ApiResponse, StatusCodes } from '../utils';
+import { authService } from '../services/authService';
 
 export const authController = {
   signup: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -8,7 +8,7 @@ export const authController = {
 
     return {
       status: StatusCodes.CREATED,
-      message: "User created successfully",
+      message: 'User created successfully',
     };
   }),
 
@@ -25,7 +25,7 @@ export const authController = {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, "Refresh token is required");
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Refresh token is required');
     }
 
     const result = await authService.refreshToken(refreshToken);
@@ -37,9 +37,17 @@ export const authController = {
   }),
 
   logout: asyncHandler(async (req: Request): Promise<ApiResponse> => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Token is required');
+    }
+
+    await authService.logout(token);
+
     return {
       status: StatusCodes.OK,
-      message: "Logged out successfully",
+      message: 'Logged out successfully',
     };
   }),
 
@@ -48,7 +56,7 @@ export const authController = {
 
     return {
       status: StatusCodes.OK,
-      message: "Password reset instructions sent to your email",
+      message: 'Password reset instructions sent to your email',
     };
   }),
 
@@ -57,7 +65,7 @@ export const authController = {
 
     return {
       status: StatusCodes.OK,
-      message: "Password reset successful",
+      message: 'Password reset successful',
     };
   }),
 };

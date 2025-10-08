@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { Role } from "@prisma/client";
-import { ApiError, StatusCodes } from "../utils";
-import { prisma } from "../config";
+import { Request, Response, NextFunction } from 'express';
+import { Role } from '@prisma/client';
+import { ApiError, StatusCodes } from '../utils';
+import { prisma } from '../config';
 
 export const checkRole = (requiredRole: Role) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -9,7 +9,7 @@ export const checkRole = (requiredRole: Role) => {
       const userId = req.user?.id;
 
       if (!userId) {
-        throw new ApiError(StatusCodes.UNAUTHORIZED, "User not authenticated");
+        throw new ApiError(StatusCodes.UNAUTHORIZED, 'User not authenticated');
       }
 
       const userRole = await prisma.userRole.findUnique({

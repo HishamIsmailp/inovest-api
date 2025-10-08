@@ -1,6 +1,6 @@
-import { prisma } from "../config";
-import { ApiError, StatusCodes } from "../utils";
-import { NotificationService } from "./notificationService";
+import { prisma } from '../config';
+import { ApiError, StatusCodes } from '../utils';
+import { NotificationService } from './notificationService';
 
 export class InvestorService {
   async getCategories() {
@@ -15,7 +15,7 @@ export class InvestorService {
 
   async getTopIdeas(userId: string) {
     return prisma.project.findMany({
-      where: { status: "AVAILABLE", entrepreneurId: { not: userId } },
+      where: { status: 'AVAILABLE', entrepreneurId: { not: userId } },
       include: {
         category: true,
         entrepreneur: {
@@ -34,7 +34,7 @@ export class InvestorService {
       },
       orderBy: {
         ratings: {
-          _count: "desc",
+          _count: 'desc',
         },
       },
       // take: 10,
@@ -43,7 +43,7 @@ export class InvestorService {
 
   async getIdeas(userId: string) {
     return prisma.project.findMany({
-      where: { status: "AVAILABLE", entrepreneurId: { not: userId } },
+      where: { status: 'AVAILABLE', entrepreneurId: { not: userId } },
       include: {
         category: true,
         entrepreneur: {
@@ -54,7 +54,7 @@ export class InvestorService {
             ratings: true,
             interests: true,
           },
-        }
+        },
       },
     });
   }
@@ -63,7 +63,7 @@ export class InvestorService {
     return prisma.project.findMany({
       where: {
         categoryId,
-        status: "AVAILABLE",
+        status: 'AVAILABLE',
       },
       include: {
         category: true,
@@ -111,7 +111,7 @@ export class InvestorService {
     });
 
     if (!idea) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Idea not found");
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Idea not found');
     }
 
     return idea;
@@ -148,7 +148,7 @@ export class InvestorService {
       data: {
         projectId: ideaId,
         investorId,
-        status: "INTERESTED",
+        status: 'INTERESTED',
       },
       include: {
         investor: {
@@ -175,9 +175,9 @@ export class InvestorService {
     if (interest.project?.entrepreneur) {
       await NotificationService.sendNotification(
         interest.project.entrepreneur.id,
-        "New Investment Interest",
+        'New Investment Interest',
         `${interest.investor.name} has shown interest in your project`,
-        "INTEREST"
+        'INTEREST'
       );
     }
 
@@ -205,4 +205,4 @@ export class InvestorService {
   }
 }
 
-export const investorService = new InvestorService(); 
+export const investorService = new InvestorService();

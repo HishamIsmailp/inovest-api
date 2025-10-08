@@ -1,8 +1,8 @@
-import { Request } from "express";
-import { asyncHandler, ApiResponse, ApiError, StatusCodes } from "../utils";
-import { prisma } from "../config";
-import { commonService } from "../services/commonService";
-import { NotificationService } from "../services/notificationService";
+import { Request } from 'express';
+import { asyncHandler, ApiResponse, ApiError, StatusCodes } from '../utils';
+import { prisma } from '../config';
+import { commonService } from '../services/commonService';
+import { NotificationService } from '../services/notificationService';
 
 export const commonController = {
   updateProfile: asyncHandler(async (req: Request): Promise<ApiResponse> => {
@@ -14,7 +14,7 @@ export const commonController = {
     return {
       status: StatusCodes.OK,
       data: updatedUser,
-      message: "Profile updated successfully",
+      message: 'Profile updated successfully',
     };
   }),
 
@@ -33,7 +33,7 @@ export const commonController = {
     return {
       status: StatusCodes.OK,
       data: updatedRole,
-      message: "Role updated successfully",
+      message: 'Role updated successfully',
     };
   }),
 
@@ -60,7 +60,7 @@ export const commonController = {
     return {
       status: StatusCodes.CREATED,
       data: message,
-      message: "Message sent successfully",
+      message: 'Message sent successfully',
     };
   }),
 
@@ -83,7 +83,7 @@ export const commonController = {
       return {
         status: StatusCodes.OK,
         data: notification,
-        message: "Notification marked as read",
+        message: 'Notification marked as read',
       };
     }
   ),
@@ -97,14 +97,14 @@ export const commonController = {
         projectId,
         investorId,
         amount,
-        status: "PENDING",
+        status: 'PENDING',
       },
     });
 
     return {
       status: StatusCodes.CREATED,
       data: payment,
-      message: "Payment created successfully",
+      message: 'Payment created successfully',
     };
   }),
 
@@ -114,7 +114,7 @@ export const commonController = {
     const payment = await prisma.payment.update({
       where: { id: paymentId },
       data: {
-        status: "COMPLETED",
+        status: 'COMPLETED',
       },
       include: {
         project: true,
@@ -124,25 +124,25 @@ export const commonController = {
     await prisma.project.update({
       where: { id: payment.projectId },
       data: {
-        status: "INVESTED",
+        status: 'INVESTED',
       },
     });
 
     return {
       status: StatusCodes.OK,
       data: payment,
-      message: "Payment verified successfully",
+      message: 'Payment verified successfully',
     };
   }),
 
   updateFcmToken: asyncHandler(async (req: Request): Promise<ApiResponse> => {
     const { token } = req.body;
-    
+
     await NotificationService.updateFcmToken(req.user!.id, token);
 
     return {
       status: StatusCodes.OK,
-      message: "FCM token updated successfully",
+      message: 'FCM token updated successfully',
     };
   }),
 
@@ -156,15 +156,19 @@ export const commonController = {
   }),
 
   initializeChat: asyncHandler(async (req: Request): Promise<ApiResponse> => {
-      const entrepreneurId = req.user!.id;
-      const { investorId, projectId } = req.params;
-      
-      const result = await commonService.initializeChat(entrepreneurId, investorId, projectId);
-      
-      return {
-        status: StatusCodes.OK,
-        data: result,
-        message: 'Chat initialized successfully'
+    const entrepreneurId = req.user!.id;
+    const { investorId, projectId } = req.params;
+
+    const result = await commonService.initializeChat(
+      entrepreneurId,
+      investorId,
+      projectId
+    );
+
+    return {
+      status: StatusCodes.OK,
+      data: result,
+      message: 'Chat initialized successfully',
     };
   }),
 };

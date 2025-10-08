@@ -1,18 +1,18 @@
-import nodemailer from "nodemailer";
-import * as admin from "firebase-admin";
-import { prisma } from "../config";
-import { SocketService } from "./socketService";
+import nodemailer from 'nodemailer';
+import * as admin from 'firebase-admin';
+import { prisma } from '../config';
+import { SocketService } from './socketService';
 
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
   }),
 });
 
 const emailTransporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
@@ -28,9 +28,9 @@ export class NotificationService {
         subject,
         html,
       });
-      console.log("Email sent successfully");
+      console.log('Email sent successfully');
     } catch (error) {
-      console.error("Error sending email:", error);
+      console.error('Error sending email:', error);
     }
   }
 
@@ -53,13 +53,13 @@ export class NotificationService {
             body,
           },
           android: {
-            priority: "high",
+            priority: 'high',
           },
         });
-        console.log("Push notification sent successfully");
+        console.log('Push notification sent successfully');
       }
     } catch (error) {
-      console.error("Error sending push notification:", error);
+      console.error('Error sending push notification:', error);
     }
   }
 
@@ -98,7 +98,7 @@ export class NotificationService {
 
       return notification;
     } catch (error) {
-      console.error("Error sending notification:", error);
+      console.error('Error sending notification:', error);
       throw error;
     }
   }

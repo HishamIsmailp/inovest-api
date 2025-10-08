@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { ApiError, StatusCodes } from "../utils";
-import logger from "../utils/logger";
-import { ZodError } from "zod";
+import { Request, Response, NextFunction } from 'express';
+import { ApiError, StatusCodes } from '../utils';
+import logger from '../utils/logger';
+import { ZodError } from 'zod';
 
 export const errorHandler = (
   err: Error,
@@ -9,7 +9,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  logger.error("Error:", {
+  logger.error('Error:', {
     message: err.message,
     stack: err.stack,
     path: req.path,
@@ -27,13 +27,13 @@ export const errorHandler = (
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       message: err.errors
-        .map((e) => `${e.path.join(".")}: ${e.message}`)
-        .join(", "),
+        .map((e) => `${e.path.join('.')}: ${e.message}`)
+        .join(', '),
     });
   }
 
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     success: false,
-    message: "Internal server error",
+    message: 'Internal server error',
   });
 };
